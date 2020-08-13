@@ -7,19 +7,18 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wcyoung.http.loadbalancer.initializer.HttpProxyClientInitializer;
+import wcyoung.http.loadbalancer.remotes.RemoteServer;
 
 public class HttpProxyClientHandler extends ChannelInboundHandlerAdapter {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private final String remoteHost;
-    private final int remotePort;
+    private RemoteServer remoteServer;
 
     private Channel outboundChannel;
 
-    public HttpProxyClientHandler(String remoteHost, int remotePort) {
-        this.remoteHost = remoteHost;
-        this.remotePort = remotePort;
+    public HttpProxyClientHandler(RemoteServer remoteServer) {
+        this.remoteServer = remoteServer;
     }
 
     @Override
@@ -32,11 +31,11 @@ public class HttpProxyClientHandler extends ChannelInboundHandlerAdapter {
                 .handler(new HttpProxyClientInitializer(inboundChannel))
                 .option(ChannelOption.AUTO_READ, false);
 
-        ChannelFuture future = bootstrap.connect(remoteHost, remotePort);
-        outboundChannel = future.channel();
+        ChannelFuture clientFuture = bootstrap.connect(remoteServer.host(), remoteServer.port());
+        outboundChannel = clientFuture.channel();
 
-        future.addListener((ChannelFutureListener) future1 -> {
-            if (future1.isSuccess()) {
+        clientFuture.addListener((ChannelFutureListener) future -> {
+            if (future.isSuccess()) {
                 inboundChannel.read();
             } else {
                 inboundChannel.close();

@@ -4,16 +4,16 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpServerCodec;
 import wcyoung.http.loadbalancer.handler.HttpProxyClientHandler;
+import wcyoung.http.loadbalancer.remotes.RemoteServer;
 
 public class HttpLoadBalancerInitializer extends ChannelInitializer<SocketChannel> {
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
-        final String remoteHost = "localhost";
-        final int remotePort = 8000;
+        RemoteServer remoteServer = new RemoteServer("localhost", 8000);
 
         ch.pipeline().addLast("codec", new HttpServerCodec())
-                .addLast("handler", new HttpProxyClientHandler(remoteHost, remotePort));
+                .addLast("handler", new HttpProxyClientHandler(remoteServer));
     }
 
 }
