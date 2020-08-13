@@ -1,6 +1,5 @@
 package wcyoung.http.loadbalancer.initializer;
 
-import com.sun.net.httpserver.HttpServer;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpServerCodec;
