@@ -1,5 +1,7 @@
 package wcyoung.http.loadbalancer.remotes;
 
+import io.netty.channel.Channel;
+
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -17,7 +19,7 @@ public class RoundRobinServers implements RemoteServers {
     }
 
     @Override
-    public RemoteServer get() {
+    public RemoteServer get(Channel inboundChannel) {
         int index = atomicIndex.incrementAndGet();
         if (index == Integer.MAX_VALUE) {
             index = atomicIndex.updateAndGet(x -> 0);

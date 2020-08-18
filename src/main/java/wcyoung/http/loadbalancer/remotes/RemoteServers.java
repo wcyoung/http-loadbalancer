@@ -1,9 +1,9 @@
 package wcyoung.http.loadbalancer.remotes;
 
-import java.util.List;
+import io.netty.channel.Channel;
 
 public interface RemoteServers {
 
-    RemoteServer get();
+    RemoteServer get(Channel inboundChannel);
 
 }
