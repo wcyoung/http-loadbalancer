@@ -5,16 +5,12 @@ import io.netty.channel.Channel;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class RoundRobinServers implements RemoteServers {
-
-    private List<RemoteServer> servers;
-    private int serverCount;
+public class RoundRobinServers extends AbstractRemoteServers {
 
     private AtomicInteger atomicIndex;
 
     public RoundRobinServers(List<RemoteServer> serverList) {
-        this.servers = serverList;
-        this.serverCount = serverList.size();
+        super(serverList);
         this.atomicIndex = new AtomicInteger(-1);
     }
 

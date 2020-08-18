@@ -5,14 +5,10 @@ import wcyoung.http.loadbalancer.util.ChannelUtil;
 
 import java.util.List;
 
-public class HashingServers implements RemoteServers {
-
-    private List<RemoteServer> servers;
-    private int serverCount;
+public class HashingServers extends AbstractRemoteServers {
 
     public HashingServers(List<RemoteServer> serverList) {
-        this.servers = serverList;
-        this.serverCount = serverList.size();
+        super(serverList);
     }
 
     @Override
