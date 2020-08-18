@@ -10,16 +10,28 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wcyoung.http.loadbalancer.initializer.HttpLoadBalancerInitializer;
+import wcyoung.http.loadbalancer.remotes.RemoteServer;
+import wcyoung.http.loadbalancer.remotes.RemoteServers;
+import wcyoung.http.loadbalancer.remotes.RoundRobinServers;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HttpLoadBalancer {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     public static void main(String[] args) {
-        new HttpLoadBalancer().start();
+        List<RemoteServer> serverList = new ArrayList<>();
+        serverList.add(new RemoteServer("localhost", 8000));
+        serverList.add(new RemoteServer("localhost", 8001));
+
+        RemoteServers servers = new RoundRobinServers(serverList);
+
+        new HttpLoadBalancer().start(servers);
     }
 
-    private void start() {
+    private void start(RemoteServers servers) {
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
@@ -27,7 +39,7 @@ public class HttpLoadBalancer {
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new HttpLoadBalancerInitializer())
+                    .childHandler(new HttpLoadBalancerInitializer(servers))
                     .childOption(ChannelOption.AUTO_READ, false);
 
             ChannelFuture future = bootstrap.bind(8888).sync();
