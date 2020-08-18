@@ -1,6 +1,7 @@
 package wcyoung.http.loadbalancer.initializer;
 
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpServerCodec;
 import wcyoung.http.loadbalancer.handler.HttpProxyClientHandler;
@@ -16,8 +17,9 @@ public class HttpLoadBalancerInitializer extends ChannelInitializer<SocketChanne
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
-        ch.pipeline().addLast("codec", new HttpServerCodec())
-                .addLast("handler", new HttpProxyClientHandler(servers.get()));
+        ChannelPipeline pipeline = ch.pipeline();
+        pipeline.addLast("codec", new HttpServerCodec())
+                .addLast("handler", new HttpProxyClientHandler(servers.get(pipeline.channel())));
     }
 
 }
