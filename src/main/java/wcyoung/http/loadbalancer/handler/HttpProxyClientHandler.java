@@ -34,6 +34,8 @@ public class HttpProxyClientHandler extends ChannelInboundHandlerAdapter {
         ChannelFuture clientFuture = bootstrap.connect(remoteServer.host(), remoteServer.port());
         outboundChannel = clientFuture.channel();
 
+        log.info("{} -> {}", inboundChannel.remoteAddress(), remoteServer.address());
+
         clientFuture.addListener((ChannelFutureListener) future -> {
             if (future.isSuccess()) {
                 inboundChannel.read();
