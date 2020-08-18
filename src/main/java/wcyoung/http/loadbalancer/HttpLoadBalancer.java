@@ -10,6 +10,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wcyoung.http.loadbalancer.initializer.HttpLoadBalancerInitializer;
+import wcyoung.http.loadbalancer.remotes.HashingServers;
 import wcyoung.http.loadbalancer.remotes.RemoteServer;
 import wcyoung.http.loadbalancer.remotes.RemoteServers;
 import wcyoung.http.loadbalancer.remotes.RoundRobinServers;
@@ -26,7 +27,8 @@ public class HttpLoadBalancer {
         serverList.add(new RemoteServer("localhost", 8000));
         serverList.add(new RemoteServer("localhost", 8001));
 
-        RemoteServers servers = new RoundRobinServers(serverList);
+        //RemoteServers servers = new RoundRobinServers(serverList);
+        RemoteServers servers = new HashingServers(serverList);
 
         new HttpLoadBalancer().start(servers);
     }
