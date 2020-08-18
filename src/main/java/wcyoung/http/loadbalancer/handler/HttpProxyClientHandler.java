@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wcyoung.http.loadbalancer.initializer.HttpProxyClientInitializer;
 import wcyoung.http.loadbalancer.remotes.RemoteServer;
+import wcyoung.http.loadbalancer.util.ChannelUtil;
 
 public class HttpProxyClientHandler extends ChannelInboundHandlerAdapter {
 
@@ -34,7 +35,10 @@ public class HttpProxyClientHandler extends ChannelInboundHandlerAdapter {
         ChannelFuture clientFuture = bootstrap.connect(remoteServer.host(), remoteServer.port());
         outboundChannel = clientFuture.channel();
 
-        log.info("{} -> {}", inboundChannel.remoteAddress(), remoteServer.address());
+        log.info("[{}] -> [{}] -> [{}]",
+                ChannelUtil.getRemoteAddress(inboundChannel),
+                ChannelUtil.getLocalAddress(inboundChannel),
+                remoteServer.address());
 
         clientFuture.addListener((ChannelFutureListener) future -> {
             if (future.isSuccess()) {
