@@ -5,9 +5,9 @@ import wcyoung.http.loadbalancer.util.ChannelUtil;
 
 import java.util.List;
 
-public class HashingServers extends AbstractRemoteServers {
+public class RemoteServerHashingSupplier extends AbstractRemoteServerSupplier {
 
-    public HashingServers(List<RemoteServer> serverList) {
+    public RemoteServerHashingSupplier(List<RemoteServer> serverList) {
         super(serverList);
     }
 

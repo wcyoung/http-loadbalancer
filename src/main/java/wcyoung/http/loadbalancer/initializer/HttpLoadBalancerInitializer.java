@@ -5,13 +5,13 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpServerCodec;
 import wcyoung.http.loadbalancer.handler.HttpProxyClientHandler;
-import wcyoung.http.loadbalancer.remotes.RemoteServers;
+import wcyoung.http.loadbalancer.remotes.RemoteServerSupplier;
 
 public class HttpLoadBalancerInitializer extends ChannelInitializer<SocketChannel> {
 
-    private final RemoteServers servers;
+    private final RemoteServerSupplier servers;
 
-    public HttpLoadBalancerInitializer(RemoteServers servers) {
+    public HttpLoadBalancerInitializer(RemoteServerSupplier servers) {
         this.servers = servers;
     }
 
