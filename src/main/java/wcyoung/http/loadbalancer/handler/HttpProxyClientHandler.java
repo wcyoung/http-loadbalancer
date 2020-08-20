@@ -3,6 +3,11 @@ package wcyoung.http.loadbalancer.handler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.util.AsciiString;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +57,10 @@ public class HttpProxyClientHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(final ChannelHandlerContext ctx, Object msg) {
         if (outboundChannel.isActive()) {
+            if (msg instanceof HttpRequest) {
+                HttpRequest request = (HttpRequest) msg;
+                replaceHttpHeaders(request.headers(), ctx.channel());
+            }
             outboundChannel.writeAndFlush(msg).addListener((ChannelFutureListener) future -> {
                 if (future.isSuccess()) {
                     ctx.channel().read();
@@ -78,6 +87,34 @@ public class HttpProxyClientHandler extends ChannelInboundHandlerAdapter {
     static void closeOnFlush(Channel ch) {
         if (ch.isActive()) {
             ch.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+        }
+    }
+
+    private void replaceHttpHeaders(HttpHeaders headers, Channel inboundChannel) {
+        String originalAddress = headers.get(HttpHeaderNames.HOST);
+        String replaceAddress = remoteServer.address();
+        AsciiString[] replaceHeaderNames = {HttpHeaderNames.HOST, HttpHeaderNames.ORIGIN, HttpHeaderNames.REFERER};
+
+        String headerValue;
+        for (AsciiString headerName : replaceHeaderNames) {
+            headerValue = headers.get(headerName);
+            if (StringUtils.isNotBlank(headerValue)) {
+                headers.set(headerName, headerValue.replace(originalAddress, replaceAddress));
+            }
+        }
+
+        String headerName = "X-Forwarded-For";
+        headerValue = headers.get(headerName);
+        if (StringUtils.isNotBlank(headerValue)) {
+            headers.set(headerName, headerValue + ", " + ChannelUtil.getLocalIp(inboundChannel));
+        } else {
+            headers.add(headerName, ChannelUtil.getRemoteIp(inboundChannel));
+
+            headerName = "X-Real-IP";
+            headerValue = headers.get(headerName);
+            if (StringUtils.isBlank(headerValue)) {
+                headers.add(headerName, ChannelUtil.getRemoteIp(inboundChannel));
+            }
         }
     }
 
